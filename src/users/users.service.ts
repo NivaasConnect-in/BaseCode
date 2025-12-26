@@ -1,5 +1,5 @@
 import { PrismaService } from 'nestjs-prisma';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PasswordService } from '../auth/password.service';
 import { ChangePasswordInput } from './dto/change-password.input';
 import { UpdateUserInput } from './dto/update-user.input';
@@ -22,12 +22,17 @@ export class UsersService {
 
   async changePassword(
     userId: string,
-    userPassword: string,
     changePassword: ChangePasswordInput,
   ) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const passwordValid = await this.passwordService.validatePassword(
       changePassword.oldPassword,
-      userPassword,
+      user.passwordHash,
     );
 
     if (!passwordValid) {
@@ -40,7 +45,7 @@ export class UsersService {
 
     return this.prisma.user.update({
       data: {
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
       where: { id: userId },
     });

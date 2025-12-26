@@ -13,15 +13,28 @@ generator dbml {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   email     String   @unique
-  password  String
+  passwordHash String
   firstname String?
+  middlename String?
   lastname  String?
-  posts     Post[]
+  title     Title?
+  dob       DateTime?
+  gender    Gender?
+  mobile    String?  @unique
+  isEmailVerified   Boolean @default(false)
+  isMobileVerified  Boolean @default(false)
+  preferredLanguage String  @default("en")
+  status    UserStatus @default(ACTIVE)
+  lastLoginAt DateTime?
   role      Role
+  createdBy String?
+  createdByUser User? @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers User[] @relation("UserCreatedBy")
+  posts     Post[]
 }
 
 model Post {
@@ -38,4 +51,22 @@ model Post {
 enum Role {
   ADMIN
   USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Title {
+  MR
+  MRS
+  MS
+  DR
 }

@@ -26,6 +26,13 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+"""User gender"""
+enum Gender {
+  FEMALE
+  MALE
+  OTHER
+}
+
 """
 A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction.
 """
@@ -87,6 +94,17 @@ type PostEdge {
 
 input PostOrder {
   direction: OrderDirection!
+  field: PostOrderField!
+}
+
+"""Properties by which post connections can be ordered."""
+enum PostOrderField {
+  content
+  createdAt
+  id
+  published
+  title
+  updatedAt
 }
 
 type Query {
@@ -105,14 +123,28 @@ enum Role {
 }
 
 input SignupInput {
+  dob: String
   email: String!
   firstname: String
+  gender: Gender
   lastname: String
+  middlename: String
+  mobile: String
   password: String!
+  status: UserStatus
+  title: Title
 }
 
 type Subscription {
   postCreated: Post!
+}
+
+"""User title"""
+enum Title {
+  DR
+  MR
+  MRS
+  MS
 }
 
 type Token {
@@ -131,13 +163,31 @@ input UpdateUserInput {
 type User {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
-  email: String!
+  createdBy: String
+  createdByUser: User
+  createdUsers: [User!]
+  dob: DateTime
   firstname: String
+  gender: Gender
   id: ID!
+  isEmailVerified: Boolean!
+  isMobileVerified: Boolean!
+  lastLoginAt: DateTime
   lastname: String
+  middlename: String
+  mobile: String
   posts: [Post!]
+  preferredLanguage: String!
   role: Role!
+  status: UserStatus!
+  title: Title
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+}
+
+"""User status"""
+enum UserStatus {
+  ACTIVE
+  INACTIVE
 }

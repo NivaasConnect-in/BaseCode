@@ -29,10 +29,18 @@ export class AuthService {
     );
 
     try {
+      const { password, ...userData } = payload;
+      
+      // Convert DOB string to Date object if provided
+      const processedData = {
+        ...userData,
+        ...(userData.dob && { dob: new Date(userData.dob) }),
+      };
+      
       const user = await this.prisma.user.create({
         data: {
-          ...payload,
-          password: hashedPassword,
+          ...processedData,
+          passwordHash: hashedPassword,
           role: 'USER',
         },
       });
@@ -60,12 +68,18 @@ export class AuthService {
 
     const passwordValid = await this.passwordService.validatePassword(
       password,
-      user.password,
+      user.passwordHash,
     );
 
     if (!passwordValid) {
       throw new BadRequestException('Invalid password');
     }
+
+    // Update last login timestamp
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
 
     return this.generateTokens({
       userId: user.id,

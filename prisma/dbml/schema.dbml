@@ -7,11 +7,24 @@ Table User {
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   email String [unique, not null]
-  password String [not null]
+  passwordHash String [not null]
   firstname String
+  middlename String
   lastname String
-  posts Post [not null]
+  title Title
+  dob DateTime
+  gender Gender
+  mobile String [unique]
+  isEmailVerified Boolean [not null, default: false]
+  isMobileVerified Boolean [not null, default: false]
+  preferredLanguage String [not null, default: 'en']
+  status UserStatus [not null, default: 'ACTIVE']
+  lastLoginAt DateTime
   role Role [not null]
+  createdBy String
+  createdByUser User
+  createdUsers User [not null]
+  posts Post [not null]
 }
 
 Table Post {
@@ -29,5 +42,25 @@ Enum Role {
   ADMIN
   USER
 }
+
+Enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+Enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+Enum Title {
+  MR
+  MRS
+  MS
+  DR
+}
+
+Ref: User.createdBy - User.id
 
 Ref: Post.authorId > User.id
